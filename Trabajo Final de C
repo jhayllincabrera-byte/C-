@@ -1,0 +1,136 @@
+Gestor de contrasenas 
+
+#include <iostream>
+#include <vector>  
+#include <string> 
+#include <cctype>   
+
+using namespace std;
+
+
+bool VerificarContrasena(string pass);
+void RegistrarUsuario(vector<string>& usuarios, vector<string>& contrasenas);
+void GenerarAlertas(const vector<string>& usuarios, const vector<string>& contrasenas);
+void MostrarMenu();
+
+int main() {
+    
+    vector<string> usuarios;
+    vector<string> contrasenas;
+
+    int opcion;
+    bool sistemaActivo = true;
+
+    
+    while (sistemaActivo) {
+        MostrarMenu();
+        cin >> opcion;
+
+        switch (opcion) {
+            case 1:
+                
+                RegistrarUsuario(usuarios, contrasenas);
+                break;
+            case 2:
+               
+                GenerarAlertas(usuarios, contrasenas);
+                break;
+            case 3:
+                cout << "Cerrando sistema de seguridad..." << endl;
+                sistemaActivo = false;
+                break;
+            default:
+                cout << "Opción desconocida. Intente de nuevo." << endl;
+        }
+    }
+
+    return 0;
+}
+
+
+
+// Función: VerificarContraseña
+/les
+bool VerificarContrasena(string pass) {
+    // Criterio 1: Longitud mínima
+    if (pass.length() < 8) return false;
+
+    bool tieneMayus = false;
+    bool tieneMinus = false;
+    bool tieneNum = false;
+    bool tieneSigno = false;
+
+    
+    for (char c : pass) {
+        if (isupper(c)) tieneMayus = true;      // ¿Es mayúscula?
+        else if (islower(c)) tieneMinus = true; // ¿Es minúscula?
+        else if (isdigit(c)) tieneNum = true;   // ¿Es número?
+        else if (ispunct(c)) tieneSigno = true; // ¿Es signo de puntuación?
+    }
+
+    
+    return tieneMayus && tieneMinus && tieneNum && tieneSigno;
+}
+
+// Función: RegistrarUsuario
+
+void RegistrarUsuario(vector<string>& usuarios, vector<string>& contrasenas) {
+    string usuario, pass;
+
+    cout << "\n--- NUEVO REGISTRO ---" << endl;
+    cout << "Usuario: ";
+    cin >> usuario;
+    cout << "Contraseña: ";
+    cin >> pass;
+
+    // Validamos inmediatamente para dar feedback (opcional, pero recomendado)
+    if (VerificarContrasena(pass)) {
+        cout << "[OK] La contraseña cumple con los requisitos de seguridad." << endl;
+    } else {
+        cout << "[ADVERTENCIA] La contraseña es DÉBIL. Se recomienda cambiarla pronto." << endl;
+    }
+
+    // Almacenamiento en vectores
+    usuarios.push_back(usuario);
+    contrasenas.push_back(pass);
+    cout << "Usuario guardado exitosamente.\n" << endl;
+}
+
+// Función: GenerarAlertas
+
+void GenerarAlertas(const vector<string>& usuarios, const vector<string>& contrasenas) {
+    cout << "\n--- AUDITORÍA DE SEGURIDAD ---" << endl;
+
+    if (usuarios.empty()) {
+        cout << "No hay usuarios registrados en el sistema." << endl;
+        return;
+    }
+
+    int contadorRiesgos = 0;
+
+    
+    for (size_t i = 0; i < usuarios.size(); i++) {
+       
+        bool esSegura = VerificarContrasena(contrasenas[i]);
+
+        if (!esSegura) {
+            cout << "[ALERTA] Usuario: " << usuarios[i]
+                 << " -> Tiene una contraseña VULNERABLE." << endl;
+            contadorRiesgos++;
+        }
+    }
+
+    if (contadorRiesgos == 0) {
+        cout << "Excelente. Todos los usuarios tienen contraseñas fuertes." << endl;
+    } else {
+        cout << "Total de cuentas en riesgo: " << contadorRiesgos << endl;
+    }
+    cout << "------------------------------\n" << endl;
+}
+
+void MostrarMenu() {
+    cout << "=== GESTOR DE CONTRASEÑAS ===" << endl;
+    cout << "1. Registrar Usuario" << endl;
+    cout << "2. Verificar Fuerza y Generar Alertas" << endl;
+    cout << "3. Salir" << endl;
+    cout << "Seleccione: ";
